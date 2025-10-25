@@ -1,0 +1,33 @@
+name: Scheduled Scrape
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run maintenance (Scrape)
+        run: node run.js
+
+      - name: Commit and push updates
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add public/data || true
+          git commit -m "Weekly data update" || echo "No changes to commit"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
