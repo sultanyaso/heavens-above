@@ -2,13 +2,14 @@ name: Deploy Workflow
 
 on:
   workflow_run:
-    workflows: ["Continuous Integration (CI) workflow"]
+    workflows: ["Continuous Integration"]
     types:
       - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
@@ -22,8 +23,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        
 
-      # Removed build step (for backend projects)
       - name: Deploy to Server
         run: |
-          echo "🚀 Deployment process starts here"
+          echo "Deployment started after successful CI!"
+          # Example placeholder commands:
+          # scp -r ./build user@server:/var/www/html
+          # ssh user@server "pm2 restart app"
