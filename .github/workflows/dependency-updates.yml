@@ -1,13 +1,13 @@
-name: Update Dependencies
+name: Dependency Updates
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
-  workflow_dispatch:
+    - cron: '0 0 * * 1' # Runs weekly on Monday at midnight UTC
 
 jobs:
-  update:
+  update-dependencies:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,17 +16,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Update Dependencies
-        run: |
-          npm install -g npm-check-updates
-          ncu -u
-          npm install
+      - name: Check for dependency updates
+        run: npm install -g npm-check-updates
+        continue-on-error: true
+
+      - name: Update dependencies
+        run: ncu -u
+
+      - name: Install updated dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update dependencies
-          title: '[DEPENDENCY] Update Dependencies'
-          body: Automated dependency updates for package.json.
-          branch: update-dependencies
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'Automated Dependency Updates'
+          body: 'This PR contains automated updates to project dependencies.'
+          branch: 'dependency-updates'
+          delete-branch: true
