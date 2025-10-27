@@ -1,21 +1,43 @@
-name: CI Test
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+    - name: Use Node.js ${{ matrix.nodeversion }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install || true
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Run basic test
-        run: echo "CI working fine!"
+    - name: Run scraper and capture output
+      run: node run.js > scraper_output.log 2>&1  # Redirect stdout/stderr to a log file
+
+    - name: Upload scraper output as test report
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-report
+        path: scraper_output.log
+        retention-days: 7
+
+    - name: Upload generated data files
+      uses: actions/upload-artifact@v4
+      with:
+        name: data-files
+        path: public/data/*.json
+        retention-days: 7
