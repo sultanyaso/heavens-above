@@ -9,8 +9,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: production
 
     steps:
       - name: Checkout code
@@ -19,17 +19,32 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
 
       - name: Build the project
         run: npm run build
 
-      - name: Deploy to Server
-        run: |
-          echo "🚀 Deployment started after successful CI!"
-          # Example placeholder commands:
-          # scp -r ./build user@server:/var/www/html
-          # ssh user@server "pm2 restart app"
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: heavens-above-app
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          usedocker: false
+        env:
+          HD_NODE_ENV: production
+
+      - name: Notify deployment status
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: 'deployments'
+          text: 'Deployment to Heroku for heavens-above ${{ job.status }}'
