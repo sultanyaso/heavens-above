@@ -1,18 +1,22 @@
-name: Deployment Pipeline
+name: Deploy Workflow
 
 on:
-  push:
-    branches: [ main ]
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -20,12 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build project
+      - name: Build the project
         run: npm run build
 
-      # Example: deploy to GitHub Pages (replace with your host if needed)
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+      - name: Deploy to Server
+        run: |
+          echo "🚀 Deployment started after successful CI!"
+          # Example placeholder commands:
+          # scp -r ./build user@server:/var/www/html
+          # ssh user@server "pm2 restart app"
