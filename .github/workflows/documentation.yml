@@ -1,0 +1,23 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'README.md'
+      - 'public/**'
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages (Docs)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
+          clean: true
+          single-commit: true
+          token: ${{ secrets.GITHUB_TOKEN }}
