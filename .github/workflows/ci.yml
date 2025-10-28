@@ -4,10 +4,8 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - '.github/workflows/deploy.yml'
-      - '.github/workflows/scheduled-tasks.yml'
-      - '.github/workflows/**.md'
-      
+      - '.github/workflows/*.yml'  # Ignore other workflow updates
+      - '**.md'                    # Ignore markdown files
   pull_request:
     branches: [ main ]
 
