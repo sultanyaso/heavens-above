@@ -1,8 +1,11 @@
 name: Code Review Workflow
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # allows manual trigger for testing
 
 jobs:
   review:
