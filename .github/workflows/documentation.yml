@@ -3,8 +3,6 @@ name: Documentation Deployment
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'docs/**'  #documants
   workflow_dispatch:
 
 jobs:
