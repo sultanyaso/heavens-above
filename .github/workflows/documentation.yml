@@ -8,18 +8,30 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Optional: Install dependencies if you generate docs using npm
+      # - name: Install dependencies
+      #   run: npm install
+
       - name: Build documentation
         run: |
           mkdir -p docs_build
-          cp -r docs/* docs_build/
+          # Check if docs folder exists before copying
+          if [ -d "docs" ]; then
+            cp -r docs/* docs_build/
+          elif [ -f "README.md" ]; then
+            cp README.md docs_build/index.md
+          else
+            echo "No docs found, using placeholder content."
+            echo "<h1>No documentation available</h1>" > docs_build/index.html
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs_build
-          #this is a comment
