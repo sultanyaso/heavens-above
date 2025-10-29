@@ -2,7 +2,7 @@ name: Generate Release Notes
 
 on:
   push:
-    tags:
+    tags:    # relase notes
       - 'v*.*.*'
 
 jobs:
