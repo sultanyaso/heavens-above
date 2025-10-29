@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# ✅ Required for GitHub Pages deployment
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,20 +17,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Optional: Install dependencies if you generate docs using npm
-      # - name: Install dependencies
-      #   run: npm install
-
       - name: Build documentation
         run: |
           mkdir -p docs_build
-          # Check if docs folder exists before copying
           if [ -d "docs" ]; then
             cp -r docs/* docs_build/
           elif [ -f "README.md" ]; then
             cp README.md docs_build/index.md
           else
-            echo "No docs found, using placeholder content."
             echo "<h1>No documentation available</h1>" > docs_build/index.html
           fi
 
