@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write      # Allows publishing a release
+      contents: write     
       pull-requests: read  # Allows reading merged PRs for changelog
 
     steps:
@@ -35,7 +35,7 @@ jobs:
         if: success()
         run: |
           echo "${{ steps.release_notes.outputs.body }}" > release-notes.md
-          echo "✅ Release notes saved to release-notes.md"
+          echo "Release notes saved to release-notes.md"
 
       # Step 4: Upload the release notes file as an artifact
       - name: Upload Release Notes as Artifact
