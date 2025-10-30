@@ -9,7 +9,7 @@ jobs:
   create_release_and_artifact:
     runs-on: ubuntu-latest
     permissions:
-      # Required for release-drafter to create a release
+      
       contents: write
       pull-requests: read
       
