@@ -1,21 +1,38 @@
-name: Generate Release Notes
+name: Generate and Archive Release Notes
 
 on:
   push:
-    tags:    # relase notes
-      - 'v*.*.*'
+    tags:
+      - 'v*.*.*' # Triggers on version tags like v1.0.0
 
 jobs:
-  release_notes:
+  create_release_and_artifact:
     runs-on: ubuntu-latest
-
+    permissions:
+      # Required for release-drafter to create a release
+      contents: write
+      pull-requests: read
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate release notes
+      - name: Draft and Publish Release
+        id: draft_release # 👈 Added an ID to reference this step's output
         uses: release-drafter/release-drafter@v6
         with:
-          config-name: release-drafter.yml
+          # This tells the action to publish the release since a tag was pushed
+          publish: true 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save Release Notes to File
+        # This step takes the body of the release generated above and saves it
+        run: echo "${{ steps.draft_release.outputs.body }}" > release-notes.md
+      
+      - name: Upload Release Notes as Artifact
+        # This step uploads the release-notes.md file as a downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes-${{ github.ref_name }} # e.g., release-notes-v1.2.3
+          path: release-notes.md
